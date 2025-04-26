@@ -4,6 +4,8 @@ import { LoginComponent } from './login/login.component';
 import { SignupComponent } from './signup/signup.component';
 import { DashboardComponent } from './dashboard/dashboard.component';       // 👈 Any component inside layout
 import { LayoutComponent } from './Layout/layout.component';
+import { DonationTypeComponent } from './Master/donation-type/donation-type.component';
+import { UserRoleComponent } from './Master/user-role/user-role.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -19,6 +21,15 @@ export const routes: Routes = [
     children: [
       { path: 'home', component: LayoutComponent },
       { path: 'dashboard', component: DashboardComponent },
+      // ...add more pages here
+    ]
+  },
+  {
+    path: 'master',
+    component: LayoutComponent,
+    children: [
+      { path: 'donation-type', component: DonationTypeComponent },
+      { path: 'user-role', component: UserRoleComponent },
       // ...add more pages here
     ]
   }

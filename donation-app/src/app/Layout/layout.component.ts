@@ -14,11 +14,21 @@ import { NavbarComponent } from './navbar/navbar.component';
 export class LayoutComponent {
   isSidebarOpen = false;
   menuItems = [
-    { label: 'Home', link: '/home' },
-    { label: 'Dashboard', link: '/dashboard' },
-    { label: 'Profile', link: '/profile' },
-    { label: 'Settings', link: '/settings' }
+    { label: 'Dashboard', link: '/dashboard', icon: 'dashboard' },
+    {
+      label: 'Master',
+      link: '',
+      icon: 'home',
+      children: [
+        { label: 'Donation Type', link: '/master/donation-type', icon: 'gift' },
+        { label: 'User Role', link: '/master/user-role', icon: 'key' },
+        { label: 'Donation Category', link: '/master/donation-category', icon: 'key' }
+      ]
+    },
+    { label: 'Events', link: '/Events', icon: 'users' },
+    { label: 'Settings', link: '/settings', icon: 'settings' }
   ];
+  
 
   handleSidebarOpenClose = (data?: boolean): void => {
     if (typeof data === 'boolean') {
