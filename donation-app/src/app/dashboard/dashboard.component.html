@@ -1,0 +1,63 @@
+<!-- dashboard.component.html -->
+<div class="p-8 bg-gradient-to-r from-teal-50 to-violet-50 min-h-screen">
+
+    <!-- Welcome Header -->
+    <h2 class="text-3xl font-extrabold text-teal-900 mb-6 text-center">Welcome Back, Donor!</h2>
+  
+    <!-- Upcoming Volunteer Opportunities Section -->
+    <section class="mb-12">
+      <h3 class="text-2xl font-semibold text-teal-800 mb-6">Upcoming Volunteer Opportunities</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div *ngFor="let opportunity of volunteerOpportunities" class="bg-white p-6 rounded-xl shadow-lg transform hover:scale-105 hover:shadow-2xl transition-all duration-300">
+          <div class="mb-4">
+            <h4 class="text-xl font-semibold text-teal-800">{{ opportunity.title }}</h4>
+            <p class="text-sm text-teal-500">{{ opportunity.date | date }}</p>
+          </div>
+  
+          <div class="mb-4">
+            <p class="text-violet-600 font-medium">{{ opportunity.charityName }}</p>
+            <p class="text-sm text-teal-500">{{ opportunity.location }}</p>
+          </div>
+  
+          <div class="flex justify-between items-center">
+            <button class="text-teal-600 hover:text-teal-800 font-semibold px-4 py-2 rounded-lg border border-teal-600 hover:bg-teal-100 transition duration-300">
+              View
+            </button>
+            <button *ngIf="!opportunity.isApplied" (click)="applyForEvent(opportunity)" class="bg-gradient-to-r from-teal-600 to-violet-600 text-white font-semibold px-4 py-2 rounded-lg hover:from-teal-700 hover:to-violet-700 transition duration-300">
+              Apply
+            </button>
+            <span *ngIf="opportunity.isApplied" class="text-teal-500 font-semibold">Applied</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  
+    <!-- Items Needed by Charities Section -->
+    <section>
+      <h3 class="text-2xl font-semibold text-teal-800 mb-6">Items Needed by Charities</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div *ngFor="let item of itemsNeeded" class="bg-white p-6 rounded-xl shadow-lg transform hover:scale-105 hover:shadow-2xl transition-all duration-300">
+          <div class="mb-4">
+            <p class="text-xl font-semibold text-teal-800">{{ item.name }}</p>
+            <p class="text-sm text-teal-500">Quantity Needed: {{ item.quantity }}</p>
+          </div>
+  
+          <div class="mb-4">
+            <p class="text-violet-600 font-medium">{{ item.charityName }}</p>
+            <p class="text-sm text-teal-500">{{ item.location }}</p>
+          </div>
+  
+          <div class="flex justify-between items-center">
+            <button class="text-teal-600 hover:text-teal-800 font-semibold px-4 py-2 rounded-lg border border-teal-600 hover:bg-teal-100 transition duration-300">
+              View
+            </button>
+            <button *ngIf="!item.isDonated" (click)="donateItem(item)" class="bg-gradient-to-r from-teal-600 to-violet-600 text-white font-semibold px-4 py-2 rounded-lg hover:from-teal-700 hover:to-violet-700 transition duration-300">
+              Donate
+            </button>
+            <span *ngIf="item.isDonated" class="text-teal-500 font-semibold">Donated</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+  
