@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter, Input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
@@ -10,17 +10,21 @@ import { RouterModule } from '@angular/router';
   styleUrls: ['./navbar.component.css']
 })
 export class NavbarComponent {
-
   @Input() isOpen = true;
-
-  navbarmenuclick(){
-    this.isOpen=true;
-    console.log(this.isOpen);
+  @Input() parentFunction?: (data: any) => void;
+ 
+  navbarmenuclick() {
+    this.isOpen = !this.isOpen;
+     
+    if (this.parentFunction) {
+      this.parentFunction(this.isOpen);  
+    } else {
+      console.warn('No parentFunction passed');
+    }
   }
-
   
-
-  logout() {
+ 
+  logout(): void {
     localStorage.clear();
     console.log('User logged out');
   }

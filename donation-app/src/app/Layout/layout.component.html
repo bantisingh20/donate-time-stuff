@@ -1,13 +1,15 @@
 
 <div class="flex h-screen overflow-hidden">
-
+  <!-- <app-sidebar *ngIf="isSidebarOpen" [isOpen]="isSidebarOpen" [parentFunction]="handleSidebarOpenClose" [menuItems]="menuItems"></app-sidebar>  -->
   
-  <app-sidebar [isOpen]="isSidebarOpen" [menuItems]="menuItems"></app-sidebar>
-
+  <app-sidebar [isOpen]="isSidebarOpen" [parentFunction]="handleSidebarOpenClose" [menuItems]="menuItems"></app-sidebar>
+  
   <div class="flex-1 flex flex-col">
-    
-    <!-- <app-navbar (toggleSidebar)="toggleSidebar()" ></app-navbar> -->
-    <app-navbar [isOpen]="isSidebarOpen" [onclick]></app-navbar>
+    <app-navbar [isOpen]="isSidebarOpen" [parentFunction]="handleSidebarOpenClose"></app-navbar>
+    <!-- <app-navbar [isOpen]="isSidebarOpen" [parentFunction]="handleSidebarOpenClose"></app-navbar> -->
+
+    <!-- <button (click)="handleSidebarOpenClose()">banti singh</button><p>Sidebar Open: {{ isSidebarOpen }}</p> -->
+
     <main class="flex-1 bg-gray-50 p-6 overflow-auto">
       <router-outlet></router-outlet>
     </main>

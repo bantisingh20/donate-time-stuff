@@ -20,5 +20,13 @@ export class LayoutComponent {
     { label: 'Settings', link: '/settings' }
   ];
 
+  handleSidebarOpenClose = (data?: boolean): void => {
+    if (typeof data === 'boolean') {
+      this.isSidebarOpen = data;
+    } else {
+      this.isSidebarOpen = !this.isSidebarOpen;
+    }
   
+    console.log('Sidebar state is now:', this.isSidebarOpen);
+  };
 }

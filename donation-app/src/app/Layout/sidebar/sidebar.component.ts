@@ -11,6 +11,15 @@ import { RouterModule } from '@angular/router';
 })
 export class SidebarComponent {
   @Input() isOpen = false;
-  
+  @Input() parentFunction?: (data: any) => void;
+ 
+  navbarmenuclick(): void {
+    
+    if (this.parentFunction) { 
+      this.parentFunction(false);
+    } else {
+      console.warn('parentFunction is not defined');
+    }
+  }
   @Input() menuItems: { label: string; link: string }[] = [];
 }
