@@ -11,7 +11,7 @@ export interface MenuItem {
 }
 
 @Component({
-  selector: 'app-sidebar',
+  selector: 'app-layout-sidebar',
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './sidebar.component.html',

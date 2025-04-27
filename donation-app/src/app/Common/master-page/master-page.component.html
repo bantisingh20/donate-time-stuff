@@ -1,0 +1,134 @@
+<div class="max-w-7xl mx-auto p-1">
+
+    <!-- === TABLE VIEW === -->
+<div *ngIf="viewMode === 'table'" class="space-y-4">
+    <!-- Table Header -->
+    <div class="flex justify-between items-center px-4 py-2 bg-gradient-to-r from-teal-500 to-teal-600 rounded-lg shadow-md">
+      <h2 class="text-lg font-semibold text-white">{{ formConfig.title }}</h2>
+      <button (click)="switchToAddForm()"
+              class="bg-teal-700 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-teal-800 transition duration-300">
+        + Add New
+      </button>
+    </div>
+  
+    <!-- Table Container -->
+    <div class="overflow-x-auto border border-teal-300 rounded-lg shadow-lg bg-white">
+      <table class="min-w-full table-auto">
+        <!-- Table Header -->
+        <thead class="bg-teal-100 text-teal-800">
+          <tr>
+            <th *ngFor="let col of formConfig.columns" class="px-4 py-2 text-left border-b cursor-pointer text-sm font-medium hover:text-teal-700 transition duration-200"
+                (click)="sortTable(col.key)">
+              {{ col.label }}
+              <span *ngIf="sortedColumn === col.key">
+                <i *ngIf="sortDirection === 'asc'" class="fa fa-sort-up text-xs"></i>
+                <i *ngIf="sortDirection === 'desc'" class="fa fa-sort-down text-xs"></i>
+              </span>
+            </th>
+            <th class="px-4 py-2 border-b text-center text-sm font-medium">Actions</th>
+          </tr>
+        </thead>
+  
+        <!-- Table Body -->
+        <tbody>
+          <tr *ngFor="let row of paginatedData; let i = index"
+              [ngClass]="{'bg-teal-50': i % 2 === 0, 'bg-teal-100': i % 2 !== 0}" 
+              class="transition duration-200 hover:bg-teal-200 hover:shadow-md">
+            <td *ngFor="let col of formConfig.columns" class="px-4 py-2 border-b text-sm">{{ row[col.key] }}</td>
+            <td class="px-4 py-2 border-b text-center">
+              <div class="d-flex flex-col space-y-2 items-center">
+                <button (click)="onEdit(row)" class="text-teal-600 hover:text-teal-800 transition duration-200 text-sm font-medium flex items-center space-x-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.828 4.828a4 4 0 015.657 5.657L6.343 18.657A4 4 0 0112 20H4a2 2 0 01-2-2V12a4 4 0 011.343-2.343l8.828-8.828a4 4 0 011.657-.828z"></path>
+                  </svg>
+                  <span class="text-xs">Edit</span>
+                </button>
+                <button (click)="onDelete(row)" class="text-red-600 hover:text-red-800 transition duration-200 text-sm font-medium flex items-center space-x-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-2-2m0 0L15 3m2 2h-4m5 5h-3m2 0l1 10H5l1-10h2m1-4V4a2 2 0 012-2h6a2 2 0 012 2v1m-7 0H7"></path>
+                  </svg>
+                  <span class="text-xs">Delete</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  
+    <!-- Pagination Controls -->
+    <div class="flex justify-between items-center mt-4 px-4 py-3">
+      <div class="flex items-center space-x-2">
+        <button (click)="previousPage()" [disabled]="currentPage === 1"
+                class="bg-teal-600 text-white px-4 py-2 rounded-md text-sm disabled:bg-teal-300 disabled:text-teal-600 transition duration-300 hover:bg-teal-700">
+          Previous
+        </button>
+        <button (click)="nextPage()" [disabled]="currentPage === totalPages"
+                class="bg-teal-600 text-white px-4 py-2 rounded-md text-sm disabled:bg-teal-300 disabled:text-teal-600 transition duration-300 hover:bg-teal-700">
+          Next
+        </button>
+      </div>
+    </div>
+</div>
+
+ 
+  
+   <!-- === FORM VIEW === -->
+<div *ngIf="viewMode === 'form'" class="space-y-6">
+    <h2 class="text-2xl font-semibold text-teal-700 text-center">
+      {{ formMode === 'add' ? 'Add New Entry' : 'Edit Entry' }}
+    </h2>
+  
+    <form (ngSubmit)="onSubmit()" class="space-y-6">
+      <div *ngFor="let field of formConfig.fields" class="flex flex-col space-y-3">
+        <label class="mb-2 text-teal-600 font-medium">{{ field.label }}</label>
+        
+        <input *ngIf="['text', 'email', 'number'].includes(field.type)"
+               [(ngModel)]="field.value"
+               [type]="field.type"
+               [name]="field.key"
+               [placeholder]="field.placeholder"
+               class="border px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-300 w-full" />
+  
+        <select *ngIf="field.type === 'dropdown'"
+                [(ngModel)]="field.value"
+                [name]="field.key"
+                class="border px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-300 w-full">
+          <option *ngFor="let opt of field.options" [value]="opt.value">{{ opt.label }}</option>
+        </select>
+  
+        <div *ngIf="field.type === 'radio'" class="flex gap-4">
+          <label *ngFor="let opt of field.options" class="flex items-center gap-2">
+            <input type="radio"
+                   [name]="field.key"
+                   [value]="opt.value"
+                   [checked]="field.value === opt.value"
+                   (change)="field.value = opt.value" />
+            {{ opt.label }}
+          </label>
+        </div>
+  
+        <label *ngIf="field.type === 'checkbox'" class="flex items-center gap-2">
+          <input type="checkbox"
+                 [(ngModel)]="field.value"
+                 [name]="field.key" />
+          {{ field.label }}
+        </label>
+      </div>
+  
+      <div class="flex justify-between gap-4 mt-6">
+        <button type="button" (click)="onCancel()"
+                class="bg-gray-300 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-400 transition duration-300 w-full sm:w-auto text-center">
+          {{ formConfig.cancelButtonText }}
+        </button>
+  
+        <button type="submit"
+                class="bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition duration-300 w-full sm:w-auto text-center">
+          {{ formConfig.submitButtonText }}
+        </button>
+      </div>
+    </form>
+  </div>
+  
+  </div>
+  
