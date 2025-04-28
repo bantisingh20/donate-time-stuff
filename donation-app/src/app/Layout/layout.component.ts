@@ -30,9 +30,9 @@ export class LayoutComponent {
       link: '',
       icon: 'Reports',
       children: [
-        { label: 'Donation Type Wise', link: '/master/donation-type', icon: 'gift' },         
-        { label: 'Donation Category Wise', link: '/master/donation-category', icon: 'key' },
-        { label: 'User Wise Donation Summary', link: '/master/donation-category', icon: 'key' }
+        { label: 'Donation Type Wise', link: '/Reports/donation-type', icon: 'gift' },         
+        { label: 'Donation Category Wise', link: '/Reports/donation-category', icon: 'key' },
+        { label: 'User Wise Donation Summary', link: '/Reports/donation-category', icon: 'key' }
       ]
     },
 
