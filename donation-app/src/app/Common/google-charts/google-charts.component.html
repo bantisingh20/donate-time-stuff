@@ -1,1 +1,41 @@
-<p>google-charts works!</p>
+<div class="container mx-auto p-6 bg-white shadow-md rounded-lg">
+    <!-- Chart Type Selection -->
+    <div class="flex justify-between mb-6">
+      <div class="w-full sm:w-1/4 mb-4 sm:mb-0">
+        <label for="chartType" class="text-lg font-semibold text-gray-700">Select Chart Type:</label>
+        <select id="chartType" (change)="changeChartType($event)" class="w-full p-3 mt-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="ColumnChart">Column Chart</option>
+          <option value="PieChart">Pie Chart</option>
+          <option value="LineChart">Line Chart</option>
+          <option value="AreaChart">Area Chart</option>
+          <option value="ComboChart">Combo Chart</option>
+          <option value="ScatterChart">Scatter Chart</option>
+          <option value="BubbleChart">Bubble Chart</option>
+          <option value="GeoChart">Geo Chart</option>
+          <option value="Timeline">Timeline Chart</option>
+          <option value="Gauge">Gauge Chart</option>
+        </select>
+      </div>
+    </div>
+  
+    <!-- Google Charts -->
+    <google-chart
+      #chart
+      [type]="chartType"
+      [data]="chartData"
+      [columns]="chartColumns"
+      [options]="chartOptions"
+      [width]="chartWidth"
+      [height]="chartHeight"
+      class="rounded-lg shadow-lg">
+    </google-chart>
+  
+    <!-- Download Button (Icon) -->
+    <div class="mt-6 text-center">
+      <!-- Uncomment to activate the download button -->
+      <!-- <button (click)="downloadChart(chart)" class="bg-blue-600 text-white py-2 px-6 rounded-lg text-sm font-medium shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <i class="fa fa-download mr-2"></i> Download Chart
+      </button> -->
+    </div>
+  </div>
+  
