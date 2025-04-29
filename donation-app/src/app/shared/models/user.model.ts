@@ -1,9 +1,10 @@
 import { Role } from '../enums/roles.enum';
 
 export interface User {
+  token(arg0: string, token: any): unknown;
   id: string;
-  name: string;
+  fullName: string;
   email: string;
   password: string;
-  role: Role;
+  roleId: Role;
 }

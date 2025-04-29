@@ -1,6 +1,6 @@
 export enum Role {
-    Donor = 'Donor',
-    Recipient = 'Recipient',
-    Admin = 'Admin'
+    Donor = '1',
+    Recipient = '2',
+    Admin = '3'
   }
   

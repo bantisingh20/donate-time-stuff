@@ -1,8 +1,8 @@
  
 const { Sequelize, DataTypes } = require('sequelize');
  
-const sequelize = new Sequelize('TestDB', 'snpl', 'setu@123', {
-    host: '172.18.0.4',  
+const sequelize = new Sequelize('test', 'snpl', 'setu@123', {
+    host: '52.175.73.49',  
     dialect: 'mssql',   
     //port: 1433,         
     dialectOptions: {
@@ -13,13 +13,7 @@ const sequelize = new Sequelize('TestDB', 'snpl', 'setu@123', {
     },
     logging: false, 
 });
- 
-// sequelize.authenticate().then(() => {
-//     console.log('Connection has been established successfully.');  
-//  }).catch((error) => {
-//     console.error('Unable to connect to the database: ', error);
-//  });
-
+  
 async function testConnection() {
     try {
         await sequelize.authenticate(); 
@@ -36,4 +30,4 @@ testConnection();
  
  
 
-module.exports = sequelize;
+module.exports = {sequelize};

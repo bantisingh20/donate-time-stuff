@@ -7,6 +7,7 @@ import { LayoutComponent } from './Layout/layout.component';
 import { DonationTypeComponent } from './Master/donation-type/donation-type.component';
 import { UserRoleComponent } from './Master/user-role/user-role.component';
 import { MasterPageComponent } from './Common/master-page/master-page.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -38,6 +39,6 @@ export const routes: Routes = [
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule,ReactiveFormsModule]
 })
 export class AppRoutingModule {}

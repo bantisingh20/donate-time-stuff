@@ -1,0 +1,57 @@
+const dbService = require('./services/DatabaseService');
+
+// Example: Using stored procedure
+async function addUser() {
+  const procedureName = 'AddUser';  // Name of your stored procedure
+  const params = {
+    fullName: 'John Doe',
+    email: 'johndoe@example.com',
+    password: 'securepassword123',
+    roleId: 2,
+  };
+
+  try {
+    const result = await dbService.executeStoredProcedure(procedureName, params);
+    console.log('User added successfully:', result);
+  } catch (error) {
+    console.error('Error adding user:', error);
+  }
+}
+
+// Example: Executing a raw SQL query
+async function executeCustomQuery() {
+  const query = 'UPDATE Users SET isActive = :status WHERE UserId = :userId';
+  const params = { status: 'Y', userId: 1 };
+
+  try {
+    await dbService.executeQuery(query, params);
+    console.log('Query executed successfully.');
+  } catch (error) {
+    console.error('Error executing query:', error);
+  }
+}
+
+// Example: Transaction example
+async function executeTransaction() {
+  const transaction = await dbService.beginTransaction();
+
+  try {
+    // Example operations that need to be in a transaction
+    await dbService.executeQuery('UPDATE Users SET isActive = :status WHERE UserId = :userId', {
+      status: 'N',
+      userId: 2
+    });
+
+    // Commit if everything is fine
+    await dbService.commitTransaction(transaction);
+    console.log('Transaction committed successfully.');
+  } catch (error) {
+    await dbService.rollbackTransaction(transaction);
+    console.error('Error during transaction, rolled back:', error);
+  }
+}
+
+// Call example functions
+addUser();
+executeCustomQuery();
+executeTransaction();

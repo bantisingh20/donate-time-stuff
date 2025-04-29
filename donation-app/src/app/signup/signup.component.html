@@ -8,9 +8,9 @@
         <!-- Full Name Input -->
         <div>
           <label for="name" class="block mb-1 text-sm font-medium text-teal-700">Full Name</label>
-          <input type="text" id="name" name="name" formControlName="name" class="w-full px-4 py-2 border border-teal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+          <input type="text" id="name" name="fullName" formControlName="fullName" class="w-full px-4 py-2 border border-teal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
             placeholder="Your Full Name" />
-            <p *ngIf="name.invalid && (name.dirty || name.touched)" class="mt-1 text-sm text-red-500">
+            <p *ngIf="fullName.invalid && (fullName.dirty || fullName.touched)" class="mt-1 text-sm text-red-500">
               Name is required.
             </p>
         </div>
@@ -75,18 +75,18 @@
           <div class="flex items-center space-x-6">
             <!-- Donor Radio Button -->
             <label for="donor" class="flex items-center space-x-2">
-              <input type="radio" id="donor" formControlName="userType" name="userType" value="donor" class="text-teal-600 focus:ring-teal-500">
+              <input type="radio" id="donor" formControlName="roleId" name="roleId" value="donor" class="text-teal-600 focus:ring-teal-500">
               <span class="text-teal-700">Donor</span>
             </label>
   
             <!-- Charity Radio Button -->
             <label for="charity" class="flex items-center space-x-2">
-              <input type="radio" id="charity" formControlName="userType" name="userType" value="charity" class="text-teal-600 focus:ring-teal-500">
+              <input type="radio" id="charity" formControlName="roleId" name="roleId" value="charity" class="text-teal-600 focus:ring-teal-500">
               <span class="text-teal-700">Charity</span>
             </label>
           </div>
 
-          <p *ngIf="userType.invalid && (userType.dirty || userType.touched)" class="text-sm text-red-500">
+          <p *ngIf="roleId.invalid && (roleId.dirty || roleId.touched)" class="text-sm text-red-500">
             Please select a user type.
           </p>
         </div>

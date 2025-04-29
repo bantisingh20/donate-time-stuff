@@ -31,24 +31,22 @@ export class LoginComponent {
   login() {
     if (this.loginForm.valid) {
       const { email, password } = this.loginForm.value;
-      console.log('Login Form Values:', email, password);
-
-      const success = this.auth.login(email, password);
-      if (!success) {
-        this.error = 'Invalid email or password';
-        return;
-      }
-
-      const role = this.auth.getUser()?.role;
-
-      // Redirect based on role
-      if (role === Role.Donor) {
-        this.router.navigate(['/dashboard']);
-      } else if (role === Role.Recipient) {
-        this.router.navigate(['/recipient/requests']);
-      } else if (role === Role.Admin) {
-        this.router.navigate(['/admin']);
-      }
+      this.auth.login(email, password).subscribe({
+        next: (success) => {
+          if (success) {
+            console.log('Login successful');
+            alert('Login successful!');
+            this.router.navigate(['/dashboard']);
+          } else {
+            console.warn('Login failed: Invalid credentials');
+            alert('Invalid email or password.');
+          }
+        },
+        error: (err) => {
+          console.error('Login request error:', err);
+          alert('Something went wrong. Please try again later.');
+        }
+      });     
 
     } else {
       this.loginForm.markAllAsTouched();

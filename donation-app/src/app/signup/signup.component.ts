@@ -2,33 +2,35 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { User } from '../shared/models/user.model';
+import { Role } from '../shared/enums/roles.enum';
+import { UserService } from '../services/user.service';
 
 @Component({
-  selector: 'app-signup',
-  //standalone: true,
+  selector: 'app-signup', 
   imports:[CommonModule,ReactiveFormsModule],
   templateUrl: './signup.component.html'
 })
 export class SignupComponent implements OnInit {
   signupForm!: FormGroup;
 
-  constructor(private fb: FormBuilder, private router: Router) {}
+  constructor(private fb: FormBuilder,private userService: UserService, private router: Router) {}
 
   ngOnInit(): void {
     this.signupForm = this.fb.group({
-      name: ['', Validators.required],
+      fullName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(4)]],
       confirmPassword: ['', Validators.required],
-      userType: ['donor', Validators.required]
+      roleId: ['donor', Validators.required]
     }, { validator: this.passwordsMatch });
   }
 
-  get name() { return this.signupForm.get('name')!; }
+  get fullName() { return this.signupForm.get('fullName')!; }
   get email() { return this.signupForm.get('email')!; }
   get password() { return this.signupForm.get('password')!; }
   get confirmPassword() { return this.signupForm.get('confirmPassword')!; }
-  get userType() { return this.signupForm.get('userType')!; }
+  get roleId() { return this.signupForm.get('roleId')!; }
 
 
   passwordsMatch(form: FormGroup) {
@@ -42,13 +44,30 @@ export class SignupComponent implements OnInit {
       this.signupForm.markAllAsTouched();
       return;
     }
-
+  
     const formData = this.signupForm.value;
-    console.log('Form submitted', formData);
-
-    // Navigate or call signup logic here
-    this.router.navigate(['/login']);
+  
+    // const newUser: User = {
+    //   id: Date.now().toString(),
+    //   fullName: formData.fullName!,            
+    //   email: formData.email!,
+    //   password: formData.password!,
+    //   roleId: "0"! as Role      
+    // };
+  
+    this.userService.registerUser(formData).subscribe({
+      next: (response) => {
+        console.log('User registered successfully:', response);
+        alert('Registration successful!');
+        this.router.navigate(['/login']);
+      },
+      error: (err) => {
+        console.error('Registration failed:', err);
+        alert('Registration failed. Please try again.');
+      }
+    });
   }
+  
 
   navigateToLogin() {
     this.router.navigate(['/login']);

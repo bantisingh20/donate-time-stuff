@@ -1,162 +1,129 @@
-const sequelize = require('../sequelize');
+const { sequelize } = require('../sequelize');
 const { QueryTypes } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
 
-class DatabaseHelper {
+class DatabaseService {
   constructor() {
-    this.lastError = null;
-    this.logFile = 'db_error.log';
-    this.handleErrors = true;
+    // Define the log file path
+    this.errorLogFile = path.resolve(__dirname, '../logs/db_error.log');
+
+    // Ensure the 'logs' directory exists
+    this.createLogDirectoryIfNotExist();
   }
 
   // Helper method to log errors
   logError(message) {
-    if (this.handleErrors) {
-      fs.appendFileSync(this.logFile, `${new Date().toISOString()} - ${message}\n`);
+    const formattedMessage = `${new Date().toISOString()} - ${message}\n`;
+
+    try {
+      if (typeof this.errorLogFile === 'string' && this.errorLogFile.length > 0) {
+        fs.appendFileSync(this.errorLogFile, formattedMessage);
+      } else {
+        console.error('Invalid log file path:', this.errorLogFile);
+      }
+    } catch (err) {
+      console.error('Failed to write log file:', err);
     }
   }
 
-  // Execute a simple query (no result expected)
-  async executeNonQuery(query, params = []) {
+  // Ensure the 'logs' directory exists
+  createLogDirectoryIfNotExist() {
+    const logDir = path.dirname(this.errorLogFile);
+    if (!fs.existsSync(logDir)) {
+      fs.mkdirSync(logDir, { recursive: true });
+    }
+  }
+
+  async executeQuery(query, params = []) {
     try {
+      if (!sequelize) throw new Error("Sequelize instance is not defined");
+
       await sequelize.query(query, {
         replacements: params,
-        type: QueryTypes.RAW, // You can choose other types if needed, like SELECT, INSERT, etc.
+        type: QueryTypes.RAW,
       });
     } catch (error) {
-      this.lastError = error.message;
-      this.logError(error.message);
+      this.logError(`Error executing query: ${error.message}`);
       throw error;
     }
   }
 
-  // Execute query and get scalar result
   async executeScalar(query, params = []) {
     try {
+      if (!sequelize) throw new Error("Sequelize instance is not defined");
+
       const result = await sequelize.query(query, {
         replacements: params,
         type: QueryTypes.SELECT,
       });
+
       return result[0];
     } catch (error) {
-      this.lastError = error.message;
-      this.logError(error.message);
+      this.logError(`Error executing scalar query: ${error.message}`);
       throw error;
     }
   }
 
-  // Begin a transaction
   async beginTransaction() {
-    const transaction = await sequelize.transaction();
-    return transaction;
+    try {
+      return await sequelize.transaction();
+    } catch (error) {
+      this.logError(`Error beginning transaction: ${error.message}`);
+      throw error;
+    }
   }
 
-  // Commit the transaction
   async commitTransaction(transaction) {
-    await transaction.commit();
+    try {
+      await transaction.commit();
+    } catch (error) {
+      this.logError(`Error committing transaction: ${error.message}`);
+      throw error;
+    }
   }
 
-  // Rollback the transaction
   async rollbackTransaction(transaction) {
-    await transaction.rollback();
+    try {
+      await transaction.rollback();
+    } catch (error) {
+      this.logError(`Error rolling back transaction: ${error.message}`);
+      throw error;
+    }
   }
 
-  // Bulk insert
   async bulkInsert(tableName, data) {
     try {
-      await sequelize.bulkInsert(tableName, data);
+      // sequelize.bulkInsert is not a standard method; use queryInterface in migrations or a raw query
+      throw new Error('bulkInsert not implemented; use sequelize.query or model.bulkCreate');
     } catch (error) {
-      this.lastError = error.message;
-      this.logError(error.message);
+      this.logError(`Error executing bulk insert: ${error.message}`);
       throw error;
     }
   }
 
-  async executeProcedure(procedureName, params = []) {
+  async executeStoredProcedure(procName, params = {}) {
     try {
-      // Start constructing the SQL query for the stored procedure
-      let query = `EXEC ${procedureName}`;
-  
-      if (params.length > 0) {
-        // Add each parameter to the query dynamically
-        const paramStr = params
-          .map((param, index) => `@${param.name} = :${param.name}`) // Parameter names like @mailid = :mailid
-          .join(', '); // Join them with commas
-  
-        query += ` ${paramStr}`;
-      }
-  
-      // Construct the replacements object, where param.name is the key and param.value is the value
-      const replacements = params.reduce((acc, param) => {
-        acc[param.name] = param.value;
-        return acc;
-      }, {});
-  
-      // Execute the query
-      const result = await sequelize.query(query, {
-        replacements: replacements,
-        type: QueryTypes.SELECT,
-      });
-      return result;
-    } catch (error) {
-      this.lastError = error.message;
-      this.logError(error.message);
-      throw error;
-    }
-  }
- 
-  async executeProcedureNew(procedureName, params = {}) {
-    try {
-      let query = `EXEC ${procedureName}`;
-       console.log(params);
-      if (Object.keys(params).length > 0) {
-        const paramStr = Object.keys(params)
-          .map((key) => `@${key} = :${key}`)
-          .join(', ');
+      let query = `EXEC ${procName}`;
+      const paramStr = Object.keys(params)
+        .map((key) => `@${key} = :${key}`)
+        .join(', ');
 
-        query += ` ${paramStr}`;
-      }
-  
-      const replacements = { ...params };
-      
-      // Execute the query
+      if (paramStr) query += ` ${paramStr}`;
+
+      if (!sequelize) throw new Error("Sequelize instance is not defined");
+
       const result = await sequelize.query(query, {
-        replacements: replacements,
+        replacements: params,
         type: QueryTypes.SELECT,
       });
+
       return result;
     } catch (error) {
-      this.lastError = error.message;
-      console.error(error.message);
+      this.logError(`Error executing stored procedure: ${error.message}`);
       throw error;
     }
-  }
-  // Method to return the last error
-  getLastError() {
-    return this.lastError;
   }
 }
 
-module.exports = DatabaseHelper;
-
-
-// const dbHelper = new DatabaseHelper();
-
-// async function exampleUsage() {
-//   const procedureName = 'spGetMailMessage';  // Stored procedure name
-//   const params = [
-//     { name: 'mailid', value: 'user@example.com' },  // First parameter
-//     { name: 'employeeid', value: 12345 },  // Second parameter
-//   ];
-
-//   try {
-//     const result = await dbHelper.executeProcedure(procedureName, params);
-//     console.log(result);  // Log the result from the stored procedure
-//   } catch (error) {
-//     console.error('Error executing procedure:', error);
-//   }
-// }
-
-// exampleUsage();
-
+module.exports = new DatabaseService();
