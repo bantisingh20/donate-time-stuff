@@ -11,8 +11,8 @@ export class UserService {
   private apiUrl: string;
   constructor(private http: HttpClient,private router: Router) {
     const currentPath = this.router.url.replace('/', '');  
-    this.apiUrl =`${environment.apiUrl}/users/${currentPath}`;
-    console.log('API URL:', this.apiUrl);
+    this.apiUrl = `${environment.apiUrl}/users/${currentPath}`;
+   /// console.log('API URL:', this.apiUrl);
 
   }
   private users: User[] = [];
@@ -21,10 +21,14 @@ export class UserService {
     return this.users;
   }
 
-  registerUser(user :any): Observable<User> {
-    return this.http.post<User>(this.apiUrl, user);
+  registerUser(user :any) {
+    return this.http.post(this.apiUrl, user);
   }
   
+  loginUser(user :any) { 
+    return this.http.post(this.apiUrl, user);
+  }
+
   addUser(user: User) {   
     return this.http.post<User>(this.apiUrl, user);
   }

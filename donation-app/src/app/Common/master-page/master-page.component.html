@@ -31,7 +31,7 @@
   
         <!-- Table Body -->
         <tbody>
-          <tr *ngFor="let row of paginatedData; let i = index"
+          <tr *ngFor="let row of paginatedData; let i = index" 
               [ngClass]="{'bg-teal-50': i % 2 === 0, 'bg-teal-100': i % 2 !== 0}" 
               class="transition duration-200 hover:bg-teal-200 hover:shadow-md">
             <td *ngFor="let col of formConfig.columns" class="px-4 py-2 border-b text-sm">{{ row[col.key] }}</td>
@@ -83,12 +83,21 @@
       <div *ngFor="let field of formConfig.fields" class="flex flex-col space-y-3">
         <label class="mb-2 text-teal-600 font-medium">{{ field.label }}</label>
         
-        <input *ngIf="['text', 'email', 'number'].includes(field.type)"
+        <!-- <input *ngIf="['text', 'email', 'number'].includes(field.type)"
                [(ngModel)]="field.value"
                [type]="field.type"
                [name]="field.key"
                [placeholder]="field.placeholder"
+               class="border px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-300 w-full" /> -->
+        
+        <input *ngIf="['text', 'email', 'number'].includes(field.type)"
+               [(ngModel)]="field.value"
+               [ngModelOptions]="{ standalone: true }"
+               [type]="field.type"
+               [name]="field.key"
+               [placeholder]="field.placeholder"
                class="border px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-300 w-full" />
+        
   
         <select *ngIf="field.type === 'dropdown'"
                 [(ngModel)]="field.value"

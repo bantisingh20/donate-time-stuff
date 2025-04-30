@@ -49,6 +49,6 @@ export class LayoutComponent {
       this.isSidebarOpen = !this.isSidebarOpen;
     }
   
-    console.log('Sidebar state is now:', this.isSidebarOpen);
+   // console.log('Sidebar state is now:', this.isSidebarOpen);
   };
 }

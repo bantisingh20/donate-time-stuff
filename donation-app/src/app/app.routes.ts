@@ -8,6 +8,7 @@ import { DonationTypeComponent } from './Master/donation-type/donation-type.comp
 import { UserRoleComponent } from './Master/user-role/user-role.component';
 import { MasterPageComponent } from './Common/master-page/master-page.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { AuthGuard } from './auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -20,6 +21,7 @@ export const routes: Routes = [
   {
     path: '',
     component: LayoutComponent,
+    canActivate: [AuthGuard],
     children: [
       { path: 'home', component: LayoutComponent },
       { path: 'dashboard', component: DashboardComponent },
@@ -28,6 +30,7 @@ export const routes: Routes = [
   {
     path: 'master',
     component: LayoutComponent,
+    canActivate: [AuthGuard],
     children: [
       { path: 'donation-type', component: MasterPageComponent },
       { path: 'user-role', component: MasterPageComponent },

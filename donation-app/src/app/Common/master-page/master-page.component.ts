@@ -1,15 +1,18 @@
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-
+import { environment } from '../../../environment/environment';
+  
 @Component({
   selector: 'app-master-page',
+  standalone :true,
   templateUrl: './master-page.component.html',
   styleUrls: ['./master-page.component.css'],
   imports:[CommonModule,FormsModule]
 })
-export class MasterPageComponent implements OnInit {
+export class MasterPageComponent  implements OnInit  {
   formConfig: any = {};
   viewMode: 'table' | 'form' = 'table';
   formMode: 'add' | 'edit' = 'add';
@@ -22,29 +25,66 @@ export class MasterPageComponent implements OnInit {
   sortedColumn: string = '';
   sortDirection: 'asc' | 'desc' = 'asc';
   paginatedData: any[] = [];
-Math: any;
+  Math: any;
 
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  constructor(private route: ActivatedRoute, private router: Router,private http: HttpClient) {
+     
+  }
 
   ngOnInit(): void {
-    const pathSegments = this.router.url.split('/');
+    const pathSegments = this.router.url.split('/'); 
     this.currentRoute = pathSegments[pathSegments.length - 1];
     this.loadConfigForRoute();
   }
 
   loadConfigForRoute() {
-    if (this.currentRoute === 'user-role') {
-      this.loadUserRoleForm();
-    } 
-    else if(this.currentRoute ==='donation-category'){
-      this.loaddonationCategoryForm();
-    }
-    else if(this.currentRoute ==='donation-type'){
-      this.loaddonationtypeForm();
-    }
-    else {
-      console.log(`Configuration for ${this.currentRoute} not found.`);
-    }
+    // if (this.currentRoute === 'user-role') {
+    //   this.loadUserRoleForm();
+    // } 
+    // else if(this.currentRoute ==='donation-category'){
+    //   this.loaddonationCategoryForm();
+    // }
+    // else if(this.currentRoute ==='donation-types'){
+    //   this.loaddonationtypeForm();
+    // }
+    // else {
+    //   console.log(`Configuration for ${this.currentRoute} not found.`);
+    // }
+
+    //console.log(this.currentRoute)
+    this.http.get(`${environment.apiUrl}/form-config/master/${this.currentRoute }`).subscribe(config => {
+      console.log('Dynamic form config:', config);
+
+      const typedConfig = config as { 
+        form: {
+          formName: string; 
+          routePath: string; 
+          submitButtonText: string;
+          submitbuttonapi: string; 
+          cancelButtonText: string;
+          listcolumn :string;
+        };
+        fields: any[];
+        listData :any[];
+      };
+      // Populate the formConfig object with the appropriate properties
+      this.formConfig = {
+        title: typedConfig.form.formName,  // Corrected: accessing title directly
+        routePath: typedConfig.form.routePath,  // Corrected: accessing routePath directly
+        fields: typedConfig.fields || [],  // Safely assign fields if available
+        submitButtonText: typedConfig.form.submitButtonText,  // Corrected: accessing submitButtonText directly
+        cancelButtonText: typedConfig.form.cancelButtonText,  
+        columns : typedConfig.form.listcolumn ? JSON.parse(typedConfig.form.listcolumn) : [], //typedConfig.form.listcolumn ? JSON.parse(typedConfig.form.listcolumn) : []
+        data :typedConfig.listData,
+      };
+
+      this.totalPages = Math.ceil(this.formConfig.data.length / this.itemsPerPage);
+    this.updatePaginatedData();
+
+      console.log(this.formConfig);
+    });
+
+    
   }
 
   loadUserRoleForm() {
@@ -118,9 +158,7 @@ Math: any;
       ],
       columns: [
         { label: 'Sr. No.', key: 'srNo' },
-        { label: 'Donation Type', key: 'donationtypename' },
-        { label: 'Donation Type', key: 'donationtypename' },
-        { label: 'Donation Type', key: 'donationtypename' },
+        { label: 'Donation Type', key: 'donationtypename' }, 
         { label: 'Description', key: 'description' }
       ],
       data: [
@@ -138,6 +176,7 @@ Math: any;
       }
     };
 
+    console.log(this.formConfig);
     this.totalPages = Math.ceil(this.formConfig.data.length / this.itemsPerPage);
     this.updatePaginatedData();
   }
@@ -202,9 +241,11 @@ Math: any;
   onSubmit() {
     const formData: any = {};
     this.formConfig.fields.forEach((field: any) => {
+      console.log(field.value)
       formData[field.key] = field.value;
     });
 
+    console.log(formData);
     if (this.formMode === 'add') {
       formData.srNo = this.formConfig.data.length + 1;
       this.formConfig.data.push(formData);

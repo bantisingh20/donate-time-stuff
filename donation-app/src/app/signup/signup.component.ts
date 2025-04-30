@@ -46,15 +46,7 @@ export class SignupComponent implements OnInit {
     }
   
     const formData = this.signupForm.value;
-  
-    // const newUser: User = {
-    //   id: Date.now().toString(),
-    //   fullName: formData.fullName!,            
-    //   email: formData.email!,
-    //   password: formData.password!,
-    //   roleId: "0"! as Role      
-    // };
-  
+   
     this.userService.registerUser(formData).subscribe({
       next: (response) => {
         console.log('User registered successfully:', response);

@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { Role } from '../shared/enums/roles.enum';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common'; 
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-login',
@@ -16,7 +16,7 @@ export class LoginComponent {
   loginForm: FormGroup;
    
   error = '';
-  constructor(private fb: FormBuilder,private auth: AuthService, private router: Router) {
+  constructor(private fb: FormBuilder, private userService:UserService,private authService: AuthService, private router: Router) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
@@ -31,22 +31,22 @@ export class LoginComponent {
   login() {
     if (this.loginForm.valid) {
       const { email, password } = this.loginForm.value;
-      this.auth.login(email, password).subscribe({
-        next: (success) => {
-          if (success) {
-            console.log('Login successful');
-            alert('Login successful!');
-            this.router.navigate(['/dashboard']);
-          } else {
-            console.warn('Login failed: Invalid credentials');
-            alert('Invalid email or password.');
+      
+      this.userService.loginUser(this.loginForm.value).subscribe({
+        next: (response) => {
+          const token = (response as any).token; 
+          if (token) {
+            this.authService.storeToken(token);
+            this.router.navigate(['/dashboard']); // or wherever you want
           }
+          this.router.navigate(['/dashboard']);
         },
         error: (err) => {
-          console.error('Login request error:', err);
-          alert('Something went wrong. Please try again later.');
+          console.error('Registration failed:', err);
+          alert('Registration failed. Please try again.');
         }
-      });     
+      });
+
 
     } else {
       this.loginForm.markAllAsTouched();

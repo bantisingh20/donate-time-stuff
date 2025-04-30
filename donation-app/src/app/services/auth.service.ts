@@ -9,37 +9,17 @@ import { BaseService } from './base.service';
 
 @Injectable({ providedIn: 'root' })
 
-export class AuthService extends  BaseService<User>{
+export class AuthService extends  BaseService{
   private currentUser: User | null = null;
-//  private apiUrl: string;
-
+  
   constructor(http: HttpClient, private router: Router) {
-    super(http, `${environment.apiUrl}/users`);
-  }
-
-  // constructor(private http: HttpClient,private router: Router) {
-  //   const currentPath = this.router.url.replace('/', '');  
-  //   this.apiUrl =`${environment.apiUrl}/users/${currentPath}`;
-  //   console.log('API URL:', this.apiUrl);
-  // }
- 
-  login(email: string, password: string): Observable<boolean> {
-    const payload = { email, password };
-    return this.http.post<User>(`${this.apiUrl}/login`, payload, { headers: this.headers }).pipe(
-      map(user => {
-        this.currentUser = user;
-        localStorage.setItem('token', "0");  
-        return true;
-      }),
-      catchError(err => {
-        return of(false);
-      })
-    );
+    super(http, `${environment.apiUrl}/users/verifysession`);
   } 
-
+  
   logout() {
     this.currentUser = null;
-    localStorage.removeItem('token');
+    localStorage.removeItem('authToken');
+
   }
 
   getUser(): User | null {
@@ -48,5 +28,27 @@ export class AuthService extends  BaseService<User>{
 
   hasRole(role: Role): boolean {
     return this.currentUser?.roleId === role;
+  }
+
+  storeToken(token: string) {
+    localStorage.setItem('authToken', token);
+  }
+
+  getToken() {
+    return localStorage.getItem('authToken');
+  }
+  
+    
+  CheckSession(authToken2:string){
+    const authToken = this.getToken();  // Your function to retrieve token
+
+    const headers = {
+      headers: {
+        Authorization: `Bearer ${authToken}`
+      }
+    };
+    
+    return this.http.post(this.apiUrl, authToken2, headers);
+ 
   }
 }

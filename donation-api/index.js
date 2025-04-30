@@ -1,12 +1,9 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const sequelize = require('./sequelize'); 
- 
+const bodyParser = require('body-parser'); 
 const generateSwaggerSpec = require('./swaggerConfig');
 const swaggerUi = require('swagger-ui-express');
-const cors = require('cors');
-const { route } = require('./Routes/user.routes');
-const router = require('./Routes/user.routes');
+const cors = require('cors'); 
+const router = require('./Routes/Common.routes');
 const app = express(); 
  
 //app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(generateSwaggerSpec()));
