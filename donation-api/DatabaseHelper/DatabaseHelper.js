@@ -10,6 +10,9 @@ class DatabaseService {
 
     // Ensure the 'logs' directory exists
     this.createLogDirectoryIfNotExist();
+
+    // Store parameters for the stored procedure
+    this.parameters = {};
   }
 
   // Helper method to log errors
@@ -33,6 +36,11 @@ class DatabaseService {
     if (!fs.existsSync(logDir)) {
       fs.mkdirSync(logDir, { recursive: true });
     }
+  }
+
+  // Add parameter for stored procedure
+  addkeyandvalue(key, value) {
+    this.parameters[key] = value;
   }
 
   async executeQuery(query, params = []) {
@@ -102,10 +110,11 @@ class DatabaseService {
     }
   }
 
-  async executeStoredProcedure(procName, params = {}) {
+  // Execute the stored procedure with added parameters
+  async executeStoredProcedure(procName) {
     try {
       let query = `EXEC ${procName}`;
-      const paramStr = Object.keys(params)
+      const paramStr = Object.keys(this.parameters)
         .map((key) => `@${key} = :${key}`)
         .join(', ');
 
@@ -114,7 +123,7 @@ class DatabaseService {
       if (!sequelize) throw new Error("Sequelize instance is not defined");
 
       const result = await sequelize.query(query, {
-        replacements: params,
+        replacements: this.parameters,
         type: QueryTypes.SELECT,
       });
 
@@ -122,6 +131,9 @@ class DatabaseService {
     } catch (error) {
       this.logError(`Error executing stored procedure: ${error.message}`);
       throw error;
+    } finally {
+      // Clear the parameters after execution
+      this.parameters = {};
     }
   }
 }

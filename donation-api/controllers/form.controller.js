@@ -6,6 +6,9 @@ async function getFormConfigByRoute(req, res) {
   try {
     const params = {routePath : routePath}
     var listData; 
+    //// Add parameters
+    dbService.addkeyandvalue("@userid", 1);
+    dbService.addkeyandvalue("@firstname", "Banti Singh");
     const result = await dbService.executeStoredProcedure('SpGetFormConfigByRoute', params);
      
     //console.log('Stored procedure result:', result);

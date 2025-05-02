@@ -79,17 +79,10 @@
       {{ formMode === 'add' ? 'Add New Entry' : 'Edit Entry' }}
     </h2>
   
-    <form (ngSubmit)="onSubmit()" class="space-y-6">
+    <!-- <form (ngSubmit)="onSubmit()" class="space-y-6">
       <div *ngFor="let field of formConfig.fields" class="flex flex-col space-y-3">
         <label class="mb-2 text-teal-600 font-medium">{{ field.label }}</label>
-        
-        <!-- <input *ngIf="['text', 'email', 'number'].includes(field.type)"
-               [(ngModel)]="field.value"
-               [type]="field.type"
-               [name]="field.key"
-               [placeholder]="field.placeholder"
-               class="border px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-300 w-full" /> -->
-        
+         
         <input *ngIf="['text', 'email', 'number'].includes(field.type)"
                [(ngModel)]="field.value"
                [ngModelOptions]="{ standalone: true }"
@@ -136,8 +129,52 @@
           {{ formConfig.submitButtonText }}
         </button>
       </div>
+    </form> -->
+ 
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+      <div *ngFor="let field of formConfig.fields" class="flex flex-col space-y-3">
+        <label class="mb-2 text-teal-600 font-medium">{{ field.label }}</label>
+     
+        <input *ngIf="['1', 'text', 'email', 'number'].includes(field.type)"
+               [type]="field.type === '1' ? 'text' : field.type"
+               [formControlName]="field.fieldKey"
+               [placeholder]="field.placeholder"
+               class="border px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-300 w-full" />
+        <p *ngIf="form.get(field.fieldKey)?.invalid && form.get(field.fieldKey)?.touched"
+           class="text-red-500 text-sm">
+          {{ field.label }} is required.
+        </p>
+     
+        <select *ngIf="field.type === 'dropdown'"
+                [formControlName]="field.fieldKey"
+                class="border px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-300 w-full">
+          <option *ngFor="let opt of field.options" [value]="opt.value">{{ opt.label }}</option>
+        </select>
+      
+        <label *ngIf="field.type === 'checkbox'" class="flex items-center gap-2">
+          <input type="checkbox" [formControlName]="field.fieldKey" />
+          {{ field.label }}
+        </label>
+      </div>
+    
+      <!-- Centered Buttons       [disabled]="form.invalid" -->
+      <div class="flex justify-center gap-4 mt-6">
+         
+        <button type="submit"
+                class="bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition duration-300"
+          
+                >
+          {{ formConfig.submitButtonText }}
+        </button>
+
+        <button type="button" (click)="onCancel()"
+                class="bg-gray-300 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-400 transition duration-300">
+          {{ formConfig.cancelButtonText }}
+        </button>
+      </div>
     </form>
-  </div>
+    
+</div>
   
   </div>
   

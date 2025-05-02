@@ -1,33 +1,36 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from '../../../environment/environment';
+import { MasterService } from '../../services/master.service';
   
 @Component({
   selector: 'app-master-page',
   standalone :true,
   templateUrl: './master-page.component.html',
   styleUrls: ['./master-page.component.css'],
-  imports:[CommonModule,FormsModule]
+  imports:[CommonModule,FormsModule,ReactiveFormsModule]
 })
+
+
 export class MasterPageComponent  implements OnInit  {
   formConfig: any = {};
+  form!: FormGroup;
   viewMode: 'table' | 'form' = 'table';
   formMode: 'add' | 'edit' = 'add';
   currentRoute: string = '';
-
-  // Pagination variables
+ 
   currentPage: number = 1;
-  itemsPerPage: number = 5; // Number of rows per page
+  itemsPerPage: number = 5;  
   totalPages: number = 0;
   sortedColumn: string = '';
   sortDirection: 'asc' | 'desc' = 'asc';
   paginatedData: any[] = [];
   Math: any;
 
-  constructor(private route: ActivatedRoute, private router: Router,private http: HttpClient) {
+  constructor( private masterService: MasterService,private fb: FormBuilder,private route: ActivatedRoute, private router: Router,private http: HttpClient) {
      
   }
 
@@ -35,23 +38,11 @@ export class MasterPageComponent  implements OnInit  {
     const pathSegments = this.router.url.split('/'); 
     this.currentRoute = pathSegments[pathSegments.length - 1];
     this.loadConfigForRoute();
+   
   }
 
   loadConfigForRoute() {
-    // if (this.currentRoute === 'user-role') {
-    //   this.loadUserRoleForm();
-    // } 
-    // else if(this.currentRoute ==='donation-category'){
-    //   this.loaddonationCategoryForm();
-    // }
-    // else if(this.currentRoute ==='donation-types'){
-    //   this.loaddonationtypeForm();
-    // }
-    // else {
-    //   console.log(`Configuration for ${this.currentRoute} not found.`);
-    // }
-
-    //console.log(this.currentRoute)
+    
     this.http.get(`${environment.apiUrl}/form-config/master/${this.currentRoute }`).subscribe(config => {
       console.log('Dynamic form config:', config);
 
@@ -74,12 +65,25 @@ export class MasterPageComponent  implements OnInit  {
         fields: typedConfig.fields || [],  // Safely assign fields if available
         submitButtonText: typedConfig.form.submitButtonText,  // Corrected: accessing submitButtonText directly
         cancelButtonText: typedConfig.form.cancelButtonText,  
+        submitbuttonapi:typedConfig.form.submitbuttonapi,  
         columns : typedConfig.form.listcolumn ? JSON.parse(typedConfig.form.listcolumn) : [], //typedConfig.form.listcolumn ? JSON.parse(typedConfig.form.listcolumn) : []
         data :typedConfig.listData,
       };
 
+      const group: any = {};
+
+     
+
+      this.formConfig.fields.forEach((field: FormField) => {       
+         group[field.fieldKey] = field.required ? [null, Validators.required] : [null];
+         console.log(field)
+      });
+      this.form = this.fb.group(group);
+
+      console.log('build form  form config:', this.form);
+
       this.totalPages = Math.ceil(this.formConfig.data.length / this.itemsPerPage);
-    this.updatePaginatedData();
+      this.updatePaginatedData();
 
       console.log(this.formConfig);
     });
@@ -188,17 +192,7 @@ export class MasterPageComponent  implements OnInit  {
     } else {
       this.sortedColumn = column;
       this.sortDirection = 'asc';
-    }
-
-    // this.formConfig.data.sort((a, b) => {
-    //   if (a[column] < b[column]) {
-    //     return this.sortDirection === 'asc' ? -1 : 1;
-    //   }
-    //   if (a[column] > b[column]) {
-    //     return this.sortDirection === 'asc' ? 1 : -1;
-    //   }
-    //   return 0;
-    // });
+    } 
 
     this.updatePaginatedData();
   }
@@ -239,24 +233,36 @@ export class MasterPageComponent  implements OnInit  {
   }
 
   onSubmit() {
-    const formData: any = {};
-    this.formConfig.fields.forEach((field: any) => {
-      console.log(field.value)
-      formData[field.key] = field.value;
-    });
-
-    console.log(formData);
-    if (this.formMode === 'add') {
-      formData.srNo = this.formConfig.data.length + 1;
-      this.formConfig.data.push(formData);
-    } else if (this.formMode === 'edit') {
-      const editRow = this.formConfig.data.find((row: any) => row.srNo === formData.srNo);
-      Object.assign(editRow, formData);
+    if (this.form.invalid) {      
+      this.form.markAllAsTouched();
+      return;
     }
 
-    this.viewMode = 'table';
-    this.totalPages = Math.ceil(this.formConfig.data.length / this.itemsPerPage);
-    this.updatePaginatedData();
+    
+
+    
+    
+    if (this.form.valid) {
+      if (this.formMode === 'edit') {
+        // Update data if editing
+        this.masterService.UpdateMaster(this.form.value).subscribe(() => {
+          this.form.reset();
+          // this.viewMode = 'table';
+          // this.totalPages = Math.ceil(this.formConfig.data.length / this.itemsPerPage);
+          // this.updatePaginatedData();
+        });
+      } else {
+       
+        this.masterService.SaveMaster(this.form.value).subscribe(() => {
+          this.form.reset();
+          // this.viewMode = 'table';
+          // this.totalPages = Math.ceil(this.formConfig.data.length / this.itemsPerPage);
+          // this.updatePaginatedData();
+          this.form.reset();
+        });
+      }
+    }
+ 
   }
 
   onDelete(row: any) {
@@ -277,4 +283,14 @@ export class MasterPageComponent  implements OnInit  {
       field.value = '';
     });
   }
+}
+
+
+interface FormField {
+  fieldKey: string;
+  label: string;
+  type: string; // '1', 'text', 'email', 'dropdown', 'checkbox', etc.
+  placeholder?: string;
+  required:boolean,
+  options?: { label: string; value: string }[];
 }
