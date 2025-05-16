@@ -111,7 +111,7 @@ class DatabaseService {
   }
 
   // Execute the stored procedure with added parameters
-  async executeStoredProcedure(procName) {
+  async executeStoredProcedureWithParameter(procName) {
     try {
       let query = `EXEC ${procName}`;
       const paramStr = Object.keys(this.parameters)
@@ -136,6 +136,30 @@ class DatabaseService {
       this.parameters = {};
     }
   }
+
+  async executeStoredProcedure(procName, params = {}) {
+    try {
+      let query = `EXEC ${procName}`;
+      const paramStr = Object.keys(params)
+        .map((key) => `@${key} = :${key}`)
+        .join(', ');
+
+      if (paramStr) query += ` ${paramStr}`;
+
+      if (!sequelize) throw new Error("Sequelize instance is not defined");
+
+      const result = await sequelize.query(query, {
+        replacements: params,
+        type: QueryTypes.SELECT,
+      });
+
+      return result;
+    } catch (error) {
+      this.logError(`Error executing stored procedure: ${error.message}`);
+      throw error;
+    }
+  }
+
 }
 
 module.exports = new DatabaseService();
